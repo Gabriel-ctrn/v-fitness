@@ -1,9 +1,18 @@
+package br.com.vfitness.demo.entity
+
+import jakarta.persistence.*
+
 @Entity
 data class Maquina(
-    @Id @GeneratedValue val id: Long = 0,
-    val nome: String,
-    val grupoMuscular: String,
-    val status: String, // Ex: "Disponível", "Ocupada"
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
 
-    @ManyToOne val academia: Academia
+    val nome: String,
+
+    val grupoMuscular: String,
+
+    @ManyToOne
+    @JoinColumn(name = "academia_id")
+    val academia: Academia
 )

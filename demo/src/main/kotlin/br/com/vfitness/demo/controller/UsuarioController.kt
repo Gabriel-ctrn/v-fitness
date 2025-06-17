@@ -39,9 +39,13 @@ class UsuarioController(private val usuarioRepository: UsuarioRepository) {
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return usuarioRepository.findById(id).map {
-            usuarioRepository.delete(it)
+        val usuarioOptional = usuarioRepository.findById(id)
+
+        return if (usuarioOptional.isPresent) {
+            usuarioRepository.delete(usuarioOptional.get())
             ResponseEntity.noContent().build()
-        }.orElse(ResponseEntity.notFound().build())
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 }

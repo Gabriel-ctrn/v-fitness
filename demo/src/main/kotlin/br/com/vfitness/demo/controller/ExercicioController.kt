@@ -30,21 +30,23 @@ class ExercicioController(private val exercicioRepository: ExercicioRepository) 
 
     @PutMapping("/{id}")
     fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Exercicio): ResponseEntity<Exercicio> {
-        return exercicioRepository.findById(id).map {
-            val novo = it.copy(
+        return exercicioRepository.findById(id).map { exercicioExistente ->
+            val exercicioAtualizado = exercicioExistente.copy(
                 nome = atualizada.nome,
                 grupoMuscular = atualizada.grupoMuscular,
                 tipo = atualizada.tipo
             )
-            ResponseEntity.ok(exercicioRepository.save(novo))
+            ResponseEntity.ok(exercicioRepository.save(exercicioAtualizado))
         }.orElse(ResponseEntity.notFound().build())
     }
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return exercicioRepository.findById(id).map {
-            exercicioRepository.delete(it)
+        return if (exercicioRepository.existsById(id)) {
+            exercicioRepository.deleteById(id)
             ResponseEntity.noContent().build()
-        }.orElse(ResponseEntity.notFound().build())
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 }

@@ -38,9 +38,13 @@ class MaquinaController(private val maquinaRepository: MaquinaRepository) {
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return maquinaRepository.findById(id).map {
-            maquinaRepository.delete(it)
+        val maquinaOptional = maquinaRepository.findById(id)
+
+        return if (maquinaOptional.isPresent) {
+            maquinaRepository.delete(maquinaOptional.get())
             ResponseEntity.noContent().build()
-        }.orElse(ResponseEntity.notFound().build())
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 }

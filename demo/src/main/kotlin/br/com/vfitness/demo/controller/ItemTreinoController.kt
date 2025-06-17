@@ -39,9 +39,13 @@ class ItemTreinoController(private val itemTreinoRepository: ItemTreinoRepositor
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return itemTreinoRepository.findById(id).map {
-            itemTreinoRepository.delete(it)
+        val itemOptional = itemTreinoRepository.findById(id)
+
+        return if (itemOptional.isPresent) {
+            itemTreinoRepository.delete(itemOptional.get())
             ResponseEntity.noContent().build()
-        }.orElse(ResponseEntity.notFound().build())
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 }

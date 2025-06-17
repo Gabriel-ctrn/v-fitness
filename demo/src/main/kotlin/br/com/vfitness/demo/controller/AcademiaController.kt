@@ -4,6 +4,7 @@ import br.com.vfitness.demo.entity.Academia
 import br.com.vfitness.demo.repository.AcademiaRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/academias")
@@ -13,26 +14,31 @@ class AcademiaController(private val academiaRepository: AcademiaRepository) {
     fun listar(): List<Academia> = academiaRepository.findAll()
 
     @GetMapping("/{id}")
-    fun buscarPorId(@PathVariable id: Long): ResponseEntity<Academia> =
-        academiaRepository.findById(id).map { ResponseEntity.ok(it) }
+    fun buscarPorId(@PathVariable id: Long): ResponseEntity<Academia> {
+        val academiaOptional: Optional<Academia> = academiaRepository.findById(id)
+        return academiaOptional.map { ResponseEntity.ok(it) }
             .orElse(ResponseEntity.notFound().build())
+    }
 
     @PostMapping
     fun criar(@RequestBody academia: Academia): Academia = academiaRepository.save(academia)
 
     @PutMapping("/{id}")
     fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Academia): ResponseEntity<Academia> {
-        return academiaRepository.findById(id).map {
-            val nova = it.copy(nome = atualizada.nome, endereco = atualizada.endereco)
-            ResponseEntity.ok(academiaRepository.save(nova))
+        return academiaRepository.findById(id).map { academiaExistente ->
+            val novaAcademia = academiaExistente.copy(
+                nome = atualizada.nome,
+                endereco = atualizada.endereco
+            )
+            ResponseEntity.ok(academiaRepository.save(novaAcademia))
         }.orElse(ResponseEntity.notFound().build())
     }
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return academiaRepository.findById(id).map {
-            academiaRepository.delete(it)
-            ResponseEntity.noContent().build()
+        return academiaRepository.findById(id).map { academia ->
+            academiaRepository.delete(academia)
+            ResponseEntity.noContent().build<Void>()
         }.orElse(ResponseEntity.notFound().build())
     }
 }

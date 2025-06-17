@@ -1,9 +1,16 @@
+package br.com.vfitness.demo.entity
+
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+
 @Entity
 data class Exercicio(
-    @Id @GeneratedValue val id: Long = 0,
-    val nome: String,
-    val grupoMuscular: String,
-    val tipo: String, // Ex: "Máquina", "Livre"
-    val equipamentosNecessarios: String // Ex: "Barra, Anilhas"
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
+    var nome: String,
+    var grupoMuscular: String,
+    var tipo: String
 )
-
