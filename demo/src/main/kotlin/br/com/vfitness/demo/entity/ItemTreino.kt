@@ -1,5 +1,6 @@
 package br.com.vfitness.demo.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
@@ -16,5 +17,6 @@ data class ItemTreino(
 
     @ManyToOne
     @JoinColumn(name = "treino_id")
+    @JsonIgnore
     val treino: Treino
 )

@@ -27,8 +27,8 @@ data class Treino(
     @Transient
     val descansos: MutableList<Duration> = mutableListOf(),
 
-    @OneToMany(mappedBy = "treino", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToMany(mappedBy = "treino", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    // @JsonIgnore // <- Esta anotação foi removida para que os itens sejam enviados na resposta da API
     val itens: List<ItemTreino> = emptyList()
 ) {
     // tempo total de treino
@@ -36,7 +36,8 @@ data class Treino(
         get() {
             return if (inicio != null && fim != null) {
                 val duracao = Duration.between(inicio, fim)
-                "${duracao.toMinutes()} minutos e ${duracao.toSecondsPart()} segundos"
+                // Formatando para minutos e segundos
+                String.format("%d minutos e %d segundos", duracao.toMinutes(), duracao.seconds % 60)
             } else "Treino não finalizado"
         }
 
@@ -45,6 +46,6 @@ data class Treino(
     val tempoTotalDescanso: String
         get() {
             val total = descansos.fold(Duration.ZERO, Duration::plus)
-            return "${total.toMinutes()} minutos e ${total.toSecondsPart()} segundos"
+            return String.format("%d minutos e %d segundos", total.toMinutes(), total.seconds % 60)
         }
 }

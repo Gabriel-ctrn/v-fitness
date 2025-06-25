@@ -1,5 +1,6 @@
 package br.com.vfitness.demo.controller
 
+import br.com.vfitness.demo.dto.SalvarTreinoRequest
 import br.com.vfitness.demo.entity.Treino
 import br.com.vfitness.demo.service.TreinoService
 import org.springframework.http.ResponseEntity
@@ -24,9 +25,15 @@ class TreinoController(private val treinoService: TreinoService) {
     fun criar(@RequestBody treino: Treino): Treino =
         treinoService.criar(treino)
 
-    @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Treino): ResponseEntity<Treino> =
-        treinoService.atualizar(id, atualizada)
+    @PutMapping("/finalizar")
+    fun finalizar(@RequestBody request: SalvarTreinoRequest): ResponseEntity<Treino> {
+        return try {
+            val treinoSalvo = treinoService.finalizarESalvar(request)
+            ResponseEntity.ok(treinoSalvo)
+        } catch (e: RuntimeException) {
+            ResponseEntity.notFound().build()
+        }
+    }
 
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> =
