@@ -1,52 +1,30 @@
 package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.Exercicio
-import br.com.vfitness.demo.repository.ExercicioRepository
+import br.com.vfitness.demo.service.ExercicioService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/exercicios")
-class ExercicioController(private val exercicioRepository: ExercicioRepository) {
+class ExercicioController(private val exercicioService: ExercicioService) {
 
     @GetMapping
-    fun listar(): List<Exercicio> = exercicioRepository.findAll()
-
-    @GetMapping("/grupo/{grupo}")
-    fun porGrupo(@PathVariable grupo: String): List<Exercicio> =
-        exercicioRepository.findAllByGrupoMuscular(grupo)
-
-    @GetMapping("/tipo/{tipo}")
-    fun porTipo(@PathVariable tipo: String): List<Exercicio> =
-        exercicioRepository.findAllByTipo(tipo)
+    fun listar(): List<Exercicio> = exercicioService.listar()
 
     @GetMapping("/{id}")
     fun buscarPorId(@PathVariable id: Long): ResponseEntity<Exercicio> =
-        exercicioRepository.findById(id).map { ResponseEntity.ok(it) }
-            .orElse(ResponseEntity.notFound().build())
+        exercicioService.buscarPorId(id)
 
     @PostMapping
-    fun criar(@RequestBody exercicio: Exercicio): Exercicio = exercicioRepository.save(exercicio)
+    fun criar(@RequestBody exercicio: Exercicio): Exercicio =
+        exercicioService.criar(exercicio)
 
     @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Exercicio): ResponseEntity<Exercicio> {
-        return exercicioRepository.findById(id).map { exercicioExistente ->
-            val exercicioAtualizado = exercicioExistente.copy(
-                nome = atualizada.nome,
-                grupoMuscular = atualizada.grupoMuscular,
-                tipo = atualizada.tipo
-            )
-            ResponseEntity.ok(exercicioRepository.save(exercicioAtualizado))
-        }.orElse(ResponseEntity.notFound().build())
-    }
+    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Exercicio): ResponseEntity<Exercicio> =
+        exercicioService.atualizar(id, atualizada)
 
     @DeleteMapping("/{id}")
-    fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        return if (exercicioRepository.existsById(id)) {
-            exercicioRepository.deleteById(id)
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
+    fun deletar(@PathVariable id: Long): ResponseEntity<Void> =
+        exercicioService.deletar(id)
 }

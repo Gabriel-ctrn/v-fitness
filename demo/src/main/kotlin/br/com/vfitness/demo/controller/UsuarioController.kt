@@ -1,51 +1,34 @@
 package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.Usuario
-import br.com.vfitness.demo.repository.UsuarioRepository
+import br.com.vfitness.demo.service.UsuarioService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/usuarios")
-class UsuarioController(private val usuarioRepository: UsuarioRepository) {
+class UsuarioController(private val usuarioService: UsuarioService) {
 
     @GetMapping
-    fun listar(): List<Usuario> = usuarioRepository.findAll()
+    fun listar(): List<Usuario> = usuarioService.listar()
 
     @GetMapping("/academia/{academiaId}")
     fun porAcademia(@PathVariable academiaId: Long): List<Usuario> =
-        usuarioRepository.findAllByAcademiaId(academiaId)
+        usuarioService.porAcademia(academiaId)
 
     @GetMapping("/{id}")
     fun buscarPorId(@PathVariable id: Long): ResponseEntity<Usuario> =
-        usuarioRepository.findById(id).map { ResponseEntity.ok(it) }
-            .orElse(ResponseEntity.notFound().build())
+        usuarioService.buscarPorId(id)
 
     @PostMapping
-    fun criar(@RequestBody usuario: Usuario): Usuario = usuarioRepository.save(usuario)
+    fun criar(@RequestBody usuario: Usuario): Usuario =
+        usuarioService.criar(usuario)
 
     @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Usuario): ResponseEntity<Usuario> {
-        return usuarioRepository.findById(id).map {
-            val novo = it.copy(
-                nome = atualizada.nome,
-                email = atualizada.email,
-                nivelExperiencia = atualizada.nivelExperiencia,
-                academia = atualizada.academia
-            )
-            ResponseEntity.ok(usuarioRepository.save(novo))
-        }.orElse(ResponseEntity.notFound().build())
-    }
+    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Usuario): ResponseEntity<Usuario> =
+        usuarioService.atualizar(id, atualizada)
 
     @DeleteMapping("/{id}")
-    fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        val usuarioOptional = usuarioRepository.findById(id)
-
-        return if (usuarioOptional.isPresent) {
-            usuarioRepository.delete(usuarioOptional.get())
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
+    fun deletar(@PathVariable id: Long): ResponseEntity<Void> =
+        usuarioService.deletar(id)
 }

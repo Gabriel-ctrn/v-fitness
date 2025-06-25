@@ -1,51 +1,34 @@
 package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.ItemTreino
-import br.com.vfitness.demo.repository.ItemTreinoRepository
+import br.com.vfitness.demo.service.ItemTreinoService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/itens-treino")
-class ItemTreinoController(private val itemTreinoRepository: ItemTreinoRepository) {
+class ItemTreinoController(private val itemTreinoService: ItemTreinoService) {
 
     @GetMapping
-    fun listar(): List<ItemTreino> = itemTreinoRepository.findAll()
+    fun listar(): List<ItemTreino> = itemTreinoService.listar()
 
     @GetMapping("/treino/{treinoId}")
     fun porTreino(@PathVariable treinoId: Long): List<ItemTreino> =
-        itemTreinoRepository.findAllByTreinoId(treinoId)
+        itemTreinoService.porTreino(treinoId)
 
     @GetMapping("/{id}")
     fun buscarPorId(@PathVariable id: Long): ResponseEntity<ItemTreino> =
-        itemTreinoRepository.findById(id).map { ResponseEntity.ok(it) }
-            .orElse(ResponseEntity.notFound().build())
+        itemTreinoService.buscarPorId(id)
 
     @PostMapping
-    fun criar(@RequestBody itemTreino: ItemTreino): ItemTreino = itemTreinoRepository.save(itemTreino)
+    fun criar(@RequestBody request: NovoItemTreinoRequest): ItemTreino =
+        itemTreinoService.criar(request)
 
     @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: ItemTreino): ResponseEntity<ItemTreino> {
-        return itemTreinoRepository.findById(id).map {
-            val novo = it.copy(
-                exercicio = atualizada.exercicio,
-                carga = atualizada.carga,
-                repeticoes = atualizada.repeticoes,
-                treino = atualizada.treino
-            )
-            ResponseEntity.ok(itemTreinoRepository.save(novo))
-        }.orElse(ResponseEntity.notFound().build())
-    }
+    fun atualizar(@PathVariable id: Long, @RequestBody atualizada: AtualizaItemTreinoRequest): ResponseEntity<ItemTreino> =
+        itemTreinoService.atualizar(id, atualizada)
 
     @DeleteMapping("/{id}")
-    fun deletar(@PathVariable id: Long): ResponseEntity<Void> {
-        val itemOptional = itemTreinoRepository.findById(id)
-
-        return if (itemOptional.isPresent) {
-            itemTreinoRepository.delete(itemOptional.get())
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
+    fun deletar(@PathVariable id: Long): ResponseEntity<Void> =
+        itemTreinoService.deletar(id)
 }

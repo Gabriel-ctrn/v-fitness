@@ -41,6 +41,7 @@ data class Treino(
         }
 
     // tempo total de descanso
+    @get:JsonIgnore
     val tempoTotalDescanso: String
         get() {
             val total = descansos.fold(Duration.ZERO, Duration::plus)
