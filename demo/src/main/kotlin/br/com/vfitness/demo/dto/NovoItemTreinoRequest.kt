@@ -1,6 +1,6 @@
-package br.com.vfitness.demo.controller
+package br.com.vfitness.demo.dto
 
-data class AtualizaItemTreinoRequest(
+data class NovoItemTreinoRequest(
     val exercicio: String,
     val carga: Double,
     val repeticoes: String,

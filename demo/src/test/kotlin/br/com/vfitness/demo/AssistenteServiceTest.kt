@@ -25,13 +25,14 @@ class AssistenteServiceTest {
     @Test
     fun `deve retornar assistente por id`() {
         val academia = Academia(1, "Academia A", "Rua 1")
-        val assistente = Assistente(1, "Carlos", "Funcional", academia)
+        val assistente = Assistente(1, "Copilot", "GPT-4", academia)
 
         whenever(assistenteRepository.findById(1)).thenReturn(Optional.of(assistente))
 
         val response = assistenteService.buscarPorId(1)
 
         assertTrue(response.statusCode.is2xxSuccessful)
-        assertEquals("Carlos", response.body?.nome)
+        assertEquals("Copilot", response.body?.identificador)
+        assertEquals("GPT-4", response.body?.modelo)
     }
 }

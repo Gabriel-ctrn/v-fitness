@@ -8,10 +8,10 @@ data class Assistente(
     val id: Long = 0,
 
     @Column(nullable = false)
-    val nome: String,
+    val identificador: String, // Ex: "Copilot", "DeepSeek"
 
     @Column(nullable = false)
-    val especialidade: String,
+    val modelo: String,        // Ex: "GPT-4", "DeepSeek-Coder"
 
     @ManyToOne
     val academia: Academia

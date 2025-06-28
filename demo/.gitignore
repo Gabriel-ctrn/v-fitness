@@ -38,3 +38,5 @@ out/
 
 ### Kotlin ###
 .kotlin
+# Arquivo de propriedades sensíveis do Spring Boot
+src/main/resources/application.properties

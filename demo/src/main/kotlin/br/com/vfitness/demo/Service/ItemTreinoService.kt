@@ -1,7 +1,7 @@
 package br.com.vfitness.demo.service
 
-import br.com.vfitness.demo.controller.AtualizaItemTreinoRequest
-import br.com.vfitness.demo.controller.NovoItemTreinoRequest
+import br.com.vfitness.demo.dto.AtualizaItemTreinoRequest
+import br.com.vfitness.demo.dto.NovoItemTreinoRequest
 import br.com.vfitness.demo.entity.ItemTreino
 import br.com.vfitness.demo.repository.ItemTreinoRepository
 import br.com.vfitness.demo.repository.TreinoRepository

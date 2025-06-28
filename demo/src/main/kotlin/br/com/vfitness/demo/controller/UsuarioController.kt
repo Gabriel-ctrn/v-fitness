@@ -2,6 +2,8 @@ package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.Usuario
 import br.com.vfitness.demo.service.UsuarioService
+import br.com.vfitness.demo.dto.NovoUsuarioRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -21,8 +23,9 @@ class UsuarioController(private val usuarioService: UsuarioService) {
         usuarioService.buscarPorId(id)
 
     @PostMapping
-    fun criar(@RequestBody usuario: Usuario): Usuario =
-        usuarioService.criar(usuario)
+    fun criar(@RequestBody request: NovoUsuarioRequest, @RequestHeader("X-Perfil") perfil: String): ResponseEntity<Any> =
+        if (perfil == "ADMIN") ResponseEntity.ok(usuarioService.criarComPerfil(request))
+        else ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas ADMIN pode cadastrar usuários.")
 
     @PutMapping("/{id}")
     fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Usuario): ResponseEntity<Usuario> =

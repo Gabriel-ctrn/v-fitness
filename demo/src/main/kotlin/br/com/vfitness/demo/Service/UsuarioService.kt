@@ -1,12 +1,18 @@
 package br.com.vfitness.demo.service
 
 import br.com.vfitness.demo.entity.Usuario
+import br.com.vfitness.demo.entity.Perfil
 import br.com.vfitness.demo.repository.UsuarioRepository
+import br.com.vfitness.demo.repository.AcademiaRepository
+import br.com.vfitness.demo.dto.NovoUsuarioRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
-class UsuarioService(private val usuarioRepository: UsuarioRepository) {
+class UsuarioService(
+    private val usuarioRepository: UsuarioRepository,
+    private val academiaRepository: AcademiaRepository
+) {
 
     fun listar(): List<Usuario> = usuarioRepository.findAll()
 
@@ -20,6 +26,20 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
     fun criar(usuario: Usuario): Usuario = usuarioRepository.save(usuario)
 
+    fun criarComPerfil(request: NovoUsuarioRequest): Usuario {
+        val academia = academiaRepository.findById(request.academiaId)
+            .orElseThrow { RuntimeException("Academia não encontrada") }
+        val usuario = Usuario(
+            nome = request.nome,
+            email = request.email,
+            senha = request.senha,
+            nivelExperiencia = request.nivelExperiencia,
+            perfil = request.perfil,
+            academia = academia
+        )
+        return usuarioRepository.save(usuario)
+    }
+
     fun atualizar(id: Long, atualizada: Usuario): ResponseEntity<Usuario> {
         val existente = usuarioRepository.findById(id).orElse(null)
         return if (existente != null) {
@@ -27,6 +47,7 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
                 nome = atualizada.nome,
                 email = atualizada.email,
                 nivelExperiencia = atualizada.nivelExperiencia,
+                perfil = atualizada.perfil,
                 academia = atualizada.academia
             )
             ResponseEntity.ok(usuarioRepository.save(novo))

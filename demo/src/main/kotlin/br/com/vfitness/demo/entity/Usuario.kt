@@ -3,6 +3,10 @@ package br.com.vfitness.demo.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
+enum class Perfil {
+    ADMIN, ALUNO
+}
+
 @Entity
 data class Usuario(
     @Id
@@ -17,6 +21,9 @@ data class Usuario(
     val senha: String = "",
 
     val nivelExperiencia: String = "",
+
+    @Enumerated(EnumType.STRING)
+    val perfil: Perfil = Perfil.ALUNO,
 
     @ManyToOne
     @JoinColumn(name = "academia_id")

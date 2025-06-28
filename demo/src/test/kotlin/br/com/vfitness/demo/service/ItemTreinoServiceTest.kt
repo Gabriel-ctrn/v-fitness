@@ -1,8 +1,10 @@
 package br.com.vfitness.demo.service
 
-import br.com.vfitness.demo.controller.NovoItemTreinoRequest
+import br.com.vfitness.demo.dto.NovoItemTreinoRequest
 import br.com.vfitness.demo.entity.ItemTreino
 import br.com.vfitness.demo.entity.Treino
+import br.com.vfitness.demo.entity.Usuario
+import br.com.vfitness.demo.entity.Academia
 import br.com.vfitness.demo.repository.ItemTreinoRepository
 import br.com.vfitness.demo.repository.TreinoRepository
 import io.mockk.every
@@ -28,11 +30,13 @@ class ItemTreinoServiceTest {
 
     @Test
     fun `deve criar um novo item de treino`() {
-        val treino = Treino(id = 1L, nome = "Treino A", usuario = mockk(), academia = mockk(), itens = mutableListOf())
+        val usuario = Usuario(id = 1L, nome = "Usuário Teste", email = "teste@teste.com", senha = "123", nivelExperiencia = "iniciante")
+        val academia = Academia(id = 1L, nome = "Academia Teste", endereco = "Rua Teste")
+        val treino = Treino(id = 1L, nome = "Treino A", usuario = usuario, itens = emptyList())
         val request = NovoItemTreinoRequest(
             exercicio = "Supino",
-            carga = 40,
-            repeticoes = 10,
+            carga = 40.0,
+            repeticoes = "3x10",
             treinoId = 1L
         )
         every { treinoRepository.findById(1L) } returns Optional.of(treino)
@@ -42,8 +46,8 @@ class ItemTreinoServiceTest {
         val result = itemTreinoService.criar(request)
 
         assertEquals("Supino", result.exercicio)
-        assertEquals(40, result.carga)
-        assertEquals(10, result.repeticoes)
+        assertEquals(40.0, result.carga)
+        assertEquals("3x10", result.repeticoes)
         assertEquals(treino, result.treino)
         verify { itemTreinoRepository.save(any()) }
     }

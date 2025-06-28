@@ -2,6 +2,8 @@ package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.ItemTreino
 import br.com.vfitness.demo.service.ItemTreinoService
+import br.com.vfitness.demo.dto.NovoItemTreinoRequest
+import br.com.vfitness.demo.dto.AtualizaItemTreinoRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
