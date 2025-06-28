@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.vfitness.app-merged_res-63:/mipmap_ic_launcher.xml.flat",
+        "source": "com.vfitness.app-main-65:/mipmap/ic_launcher.xml"
+    },
+    {
+        "merged": "com.vfitness.app-merged_res-63:/mipmap_ic_launcher_round.xml.flat",
+        "source": "com.vfitness.app-main-65:/mipmap/ic_launcher_round.xml"
+    }
+]

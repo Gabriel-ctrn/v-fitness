@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VFitness</string>
+    <style name="Theme.VFitness" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#235347</item>
+        <item name="colorPrimaryVariant">#051F20</item>
+        <item name="colorOnPrimary">#DAF1DE</item>
+        <item name="android:windowBackground">#DAF1DE</item>
+    </style>
+</resources>
