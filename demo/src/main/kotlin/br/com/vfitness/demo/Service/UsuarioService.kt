@@ -20,6 +20,16 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
     fun criar(usuario: Usuario): Usuario = usuarioRepository.save(usuario)
 
+    fun autenticar(email: String, senha: String): Usuario? {
+        val usuario = usuarioRepository.findByEmail(email).orElse(null)
+
+        return if (usuario != null && usuario.senha == senha) {
+            usuario
+        } else {
+            null
+        }
+    }
+
     fun atualizar(id: Long, atualizada: Usuario): ResponseEntity<Usuario> {
         val existente = usuarioRepository.findById(id).orElse(null)
         return if (existente != null) {

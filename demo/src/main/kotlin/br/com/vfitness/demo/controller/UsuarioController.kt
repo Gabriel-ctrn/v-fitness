@@ -2,8 +2,11 @@ package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.Usuario
 import br.com.vfitness.demo.service.UsuarioService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
+data class LoginRequest(val email: String, val senha: String)
 
 @RestController
 @RequestMapping("/usuarios")
@@ -23,6 +26,16 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     @PostMapping
     fun criar(@RequestBody usuario: Usuario): Usuario =
         usuarioService.criar(usuario)
+
+    @PostMapping("/login")
+    fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<Usuario> {
+        val usuario = usuarioService.autenticar(loginRequest.email, loginRequest.senha)
+        return if (usuario != null) {
+            ResponseEntity.ok(usuario)
+        } else {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
+    }
 
     @PutMapping("/{id}")
     fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Usuario): ResponseEntity<Usuario> =
