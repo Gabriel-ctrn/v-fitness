@@ -1,13 +1,17 @@
 package br.com.vfitness.demo.service
 
+import br.com.vfitness.demo.dto.NovoExercicioRequest
 import br.com.vfitness.demo.entity.Exercicio
 import br.com.vfitness.demo.repository.ExercicioRepository
+import br.com.vfitness.demo.repository.TreinoRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
-class ExercicioService(private val exercicioRepository: ExercicioRepository) {
-
+class ExercicioService(
+    private val exercicioRepository: ExercicioRepository,
+    private val treinoRepository: TreinoRepository
+) {
     fun listar(): List<Exercicio> = exercicioRepository.findAll()
 
     fun buscarPorId(id: Long): ResponseEntity<Exercicio> {
@@ -15,14 +19,31 @@ class ExercicioService(private val exercicioRepository: ExercicioRepository) {
         return exercicio?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 
-    fun criar(exercicio: Exercicio): Exercicio = exercicioRepository.save(exercicio)
+    fun criarComDto(request: NovoExercicioRequest): Exercicio {
+        val treino = treinoRepository.findById(request.treinoId).orElseThrow { RuntimeException("Treino não encontrado") }
+        return exercicioRepository.save(
+            Exercicio(
+                nome = request.nome,
+                grupoMuscular = request.grupoMuscular,
+                tipo = request.tipo,
+                carga = request.carga,
+                series = request.series,
+                repeticoes = request.repeticoes,
+                treino = treino
+            )
+        )
+    }
 
     fun atualizar(id: Long, atualizada: Exercicio): ResponseEntity<Exercicio> {
         val existente = exercicioRepository.findById(id).orElse(null)
         return if (existente != null) {
             val novo = existente.copy(
                 nome = atualizada.nome,
-                grupoMuscular = atualizada.grupoMuscular
+                grupoMuscular = atualizada.grupoMuscular,
+                tipo = atualizada.tipo,
+                carga = atualizada.carga,
+                series = atualizada.series,
+                repeticoes = atualizada.repeticoes
             )
             ResponseEntity.ok(exercicioRepository.save(novo))
         } else {

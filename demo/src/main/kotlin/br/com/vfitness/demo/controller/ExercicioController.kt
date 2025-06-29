@@ -2,6 +2,7 @@ package br.com.vfitness.demo.controller
 
 import br.com.vfitness.demo.entity.Exercicio
 import br.com.vfitness.demo.service.ExercicioService
+import br.com.vfitness.demo.dto.NovoExercicioRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -17,8 +18,8 @@ class ExercicioController(private val exercicioService: ExercicioService) {
         exercicioService.buscarPorId(id)
 
     @PostMapping
-    fun criar(@RequestBody exercicio: Exercicio): Exercicio =
-        exercicioService.criar(exercicio)
+    fun criar(@RequestBody request: NovoExercicioRequest): Exercicio =
+        exercicioService.criarComDto(request)
 
     @PutMapping("/{id}")
     fun atualizar(@PathVariable id: Long, @RequestBody atualizada: Exercicio): ResponseEntity<Exercicio> =

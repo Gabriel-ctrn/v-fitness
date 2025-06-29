@@ -6,9 +6,11 @@ import br.com.vfitness.demo.service.TreinoService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
 
 @RestController
 @RequestMapping("/treinos")
+@CrossOrigin(origins = ["http://localhost:8081"])
 class TreinoController(private val treinoService: TreinoService) {
 
     @GetMapping

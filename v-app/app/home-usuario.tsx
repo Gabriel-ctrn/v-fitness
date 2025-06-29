@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,72 +7,172 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Modal,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-const MOCK_PLANOS = [
-  {
-    id: 1,
-    nome: "Plano Hipertrofia",
-    objetivo: "Ganho de massa muscular",
-    treinos: [
-      { id: 1, nome: "Treino Superiores" },
-      { id: 2, nome: "Treino Inferiores" },
-      { id: 3, nome: "Treino HIIT" },
-    ],
-  },
-];
+type Treino = {
+  id: number;
+  nome: string;
+  // Adicione outros campos se necessário
+};
 
 export default function HomeUsuario() {
-  const [planoSelecionado, setPlanoSelecionado] = useState(MOCK_PLANOS[0]);
+  // Substituir mock por estado real
+  const usuarioId = 1; // TODO: trocar pelo id real do usuário logado
+  const [treinos, setTreinos] = useState<Treino[]>([]);
   const [mensagem, setMensagem] = useState("");
   const [novoTreino, setNovoTreino] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [treinoSelecionado, setTreinoSelecionado] = useState<Treino | null>(
+    null
+  );
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    buscarTreinos();
+  }, []);
+
+  const buscarTreinos = async () => {
+    setLoading(true);
+    try {
+      const resp = await fetch(
+        `http://localhost:8080/treinos/usuario/${usuarioId}`
+      );
+      if (!resp.ok) throw new Error("Erro ao buscar treinos");
+      const data = await resp.json();
+      setTreinos(data);
+    } catch (e) {
+      setMensagem("Erro ao buscar treinos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleIniciarTreino = (treinoNome: string) => {
-    setMensagem(`Treino "${treinoNome}" iniciado! (mock)`);
+    setMensagem(`Treino "${treinoNome}" iniciado!`);
     setTimeout(() => setMensagem(""), 2000);
   };
 
-  const handleAdicionarTreino = () => {
+  const handleAdicionarTreino = async () => {
     if (!novoTreino.trim()) return;
-    const novo = { id: planoSelecionado.treinos.length + 1, nome: novoTreino };
-    setPlanoSelecionado({
-      ...planoSelecionado,
-      treinos: [...planoSelecionado.treinos, novo],
-    });
-    setNovoTreino("");
-    setMensagem("Treino adicionado!");
-    setTimeout(() => setMensagem(""), 1500);
+    setLoading(true);
+    try {
+      const resp = await fetch("http://localhost:8080/treinos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Perfil": "ALUNO",
+        },
+        body: JSON.stringify({
+          nome: novoTreino,
+          usuario: { id: usuarioId },
+          // Adicione outros campos obrigatórios do Treino se necessário
+        }),
+      });
+      if (!resp.ok) throw new Error("Erro ao adicionar treino");
+      setMensagem("Treino adicionado!");
+      setNovoTreino("");
+      buscarTreinos();
+    } catch (e) {
+      setMensagem("Erro ao adicionar treino");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTreinoPress = (treino: Treino) => {
+    setTreinoSelecionado(treino);
+    setModalVisible(true);
+  };
+
+  const handleEditarExercicios = () => {
+    setModalVisible(false);
+    if (treinoSelecionado) {
+      navigation.navigate("exercicios-treino", {
+        treinoId: treinoSelecionado.id,
+      });
+    }
+  };
+
+  const handleIniciarTreinoModal = () => {
+    setModalVisible(false);
+    if (treinoSelecionado) handleIniciarTreino(treinoSelecionado.nome);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo ao V-Fitness!</Text>
-      <Text style={styles.subtitle}>Plano de Treino Atual:</Text>
-      <View style={styles.planoBox}>
-        <Text style={styles.planoNome}>{planoSelecionado.nome}</Text>
-        <Text>Objetivo: {planoSelecionado.objetivo}</Text>
-        <Text style={styles.treinosTitle}>Treinos disponíveis:</Text>
-        <FlatList
-          data={planoSelecionado.treinos}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.treinoBtn}
-              onPress={() => handleIniciarTreino(item.nome)}
+      <Text style={styles.subtitle}>Seus Treinos:</Text>
+      {loading && <Text>Carregando...</Text>}
+      <FlatList
+        data={treinos}
+        keyExtractor={(item: Treino) => item.id.toString()}
+        renderItem={({ item }: { item: Treino }) => (
+          <TouchableOpacity
+            style={styles.treinoBtn}
+            onPress={() => handleTreinoPress(item)}
+          >
+            <Text style={styles.treinoBtnText}>{item.nome}</Text>
+          </TouchableOpacity>
+        )}
+      />
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.3)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              padding: 24,
+              borderRadius: 8,
+              minWidth: 250,
+            }}
+          >
+            <Text
+              style={{ fontWeight: "bold", fontSize: 18, marginBottom: 16 }}
             >
-              <Text style={styles.treinoBtnText}>{item.nome}</Text>
-            </TouchableOpacity>
-          )}
-        />
-        <View style={styles.addTreinoBox}>
-          <TextInput
-            style={styles.input}
-            placeholder="Novo treino (ex: Abdômen)"
-            value={novoTreino}
-            onChangeText={setNovoTreino}
-          />
-          <Button title="Adicionar Treino" onPress={handleAdicionarTreino} />
+              O que deseja fazer?
+            </Text>
+            <Button
+              title="Editar Exercícios"
+              onPress={handleEditarExercicios}
+            />
+            <View style={{ height: 12 }} />
+            <Button title="Iniciar Treino" onPress={handleIniciarTreinoModal} />
+            <View style={{ height: 12 }} />
+            <Button
+              title="Cancelar"
+              color="#888"
+              onPress={() => setModalVisible(false)}
+            />
+          </View>
         </View>
+      </Modal>
+      <View style={styles.addTreinoBox}>
+        <TextInput
+          style={styles.input}
+          placeholder="Novo treino (ex: Abdômen)"
+          value={novoTreino}
+          onChangeText={setNovoTreino}
+        />
+        <Button
+          title="Adicionar Treino"
+          onPress={handleAdicionarTreino}
+          disabled={loading}
+        />
       </View>
       {mensagem ? <Text style={styles.mensagem}>{mensagem}</Text> : null}
     </View>
