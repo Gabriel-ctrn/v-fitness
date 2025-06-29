@@ -26,6 +26,19 @@ class UsuarioService(
 
     fun criar(usuario: Usuario): Usuario = usuarioRepository.save(usuario)
 
+    fun criarComDto(request: br.com.vfitness.demo.dto.NovoUsuarioRequest): Usuario {
+        val academia = academiaRepository.findById(request.academiaId).orElseThrow { RuntimeException("Academia não encontrada") }
+        val usuario = Usuario(
+            nome = request.nome,
+            email = request.email,
+            senha = request.senha,
+            nivelExperiencia = request.nivelExperiencia,
+            perfil = request.perfil,
+            academia = academia
+        )
+        return usuarioRepository.save(usuario)
+    }
+
     fun atualizar(id: Long, atualizada: Usuario): ResponseEntity<Usuario> {
         val existente = usuarioRepository.findById(id).orElse(null)
         return if (existente != null) {
@@ -50,5 +63,9 @@ class UsuarioService(
         } else {
             ResponseEntity.notFound().build()
         }
+    }
+
+    fun autenticar(email: String, senha: String): Usuario? {
+        return usuarioRepository.findAll().find { it.email == email && it.senha == senha }
     }
 }

@@ -2,6 +2,7 @@ package br.com.vfitness.demo.service
 
 import br.com.vfitness.demo.client.IAClient
 import br.com.vfitness.demo.dto.AtualizaAssistenteRequest
+// Ensure this import path matches the actual location of NovoAssistenteRequest
 import br.com.vfitness.demo.dto.NovoAssistenteRequest
 import br.com.vfitness.demo.dto.SugestaoTreinoDTO
 import br.com.vfitness.demo.entity.Academia

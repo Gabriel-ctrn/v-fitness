@@ -4,9 +4,11 @@ import br.com.vfitness.demo.entity.Academia
 import br.com.vfitness.demo.service.AcademiaService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
 
 @RestController
 @RequestMapping("/academias")
+@CrossOrigin(origins = ["http://localhost:8081"])
 class AcademiaController(private val academiaService: AcademiaService) {
 
     @GetMapping

@@ -20,7 +20,11 @@ data class Treino(
 
     // CORREÇÃO: FetchType.EAGER para sempre carregar os itens do banco.
     @OneToMany(mappedBy = "treino", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val itens: List<ItemTreino> = emptyList()
+    val itens: List<ItemTreino> = emptyList(),
+
+    @ManyToOne
+    @JoinColumn(name = "plano_treino_id")
+    val planoTreino: PlanoTreino? = null
 ) {
     val tempoTotal: String
         get() {
