@@ -8,11 +8,8 @@ data class ItemTreino(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     val exercicio: String,
-
     val carga: Double,
-
     val repeticoes: String,
 
     @ManyToOne

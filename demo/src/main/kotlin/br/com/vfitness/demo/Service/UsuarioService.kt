@@ -26,20 +26,6 @@ class UsuarioService(
 
     fun criar(usuario: Usuario): Usuario = usuarioRepository.save(usuario)
 
-    fun criarComPerfil(request: NovoUsuarioRequest): Usuario {
-        val academia = academiaRepository.findById(request.academiaId)
-            .orElseThrow { RuntimeException("Academia não encontrada") }
-        val usuario = Usuario(
-            nome = request.nome,
-            email = request.email,
-            senha = request.senha,
-            nivelExperiencia = request.nivelExperiencia,
-            perfil = request.perfil,
-            academia = academia
-        )
-        return usuarioRepository.save(usuario)
-    }
-
     fun atualizar(id: Long, atualizada: Usuario): ResponseEntity<Usuario> {
         val existente = usuarioRepository.findById(id).orElse(null)
         return if (existente != null) {

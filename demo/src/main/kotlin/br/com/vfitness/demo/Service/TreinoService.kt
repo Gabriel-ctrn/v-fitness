@@ -8,6 +8,7 @@ import br.com.vfitness.demo.repository.ItemTreinoRepository
 import br.com.vfitness.demo.repository.TreinoRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -16,37 +17,26 @@ class TreinoService(
     private val itemTreinoRepository: ItemTreinoRepository,
     private val exercicioRepository: ExercicioRepository
 ) {
-
     fun listar(): List<Treino> = treinoRepository.findAll()
-
     fun porUsuario(usuarioId: Long): List<Treino> = treinoRepository.findAllByUsuarioId(usuarioId)
-
-    fun buscarPorId(id: Long): ResponseEntity<Treino> {
-        return treinoRepository.findById(id)
+    fun buscarPorId(id: Long): ResponseEntity<Treino> =
+        treinoRepository.findById(id)
             .map { ResponseEntity.ok(it) }
             .orElse(ResponseEntity.notFound().build())
-    }
-
     fun criar(treino: Treino): Treino = treinoRepository.save(treino)
-
-    fun atualizar(id: Long, treinoAtualizado: Treino): ResponseEntity<Treino> {
-        return treinoRepository.findById(id).map { treinoExistente ->
-            // Aqui você definiria quais campos podem ser atualizados
-            val novoTreino = treinoExistente.copy(nome = treinoAtualizado.nome)
-            ResponseEntity.ok(treinoRepository.save(novoTreino))
-        }.orElse(ResponseEntity.notFound().build())
-    }
-
-    fun deletar(id: Long): ResponseEntity<Void> {
-        return treinoRepository.findById(id).map { treino ->
-            treinoRepository.delete(treino)
+    fun deletar(id: Long): ResponseEntity<Void> =
+        treinoRepository.findById(id).map {
+            treinoRepository.delete(it)
             ResponseEntity.noContent().build<Void>()
         }.orElse(ResponseEntity.notFound().build())
-    }
 
+    @Transactional
     fun finalizarESalvar(request: SalvarTreinoRequest): Treino {
         val treino = treinoRepository.findById(request.treinoId)
             .orElseThrow { RuntimeException("Treino não encontrado com ID: ${request.treinoId}") }
+
+        // CORREÇÃO: Apaga todos os itens antigos antes de salvar os novos.
+        itemTreinoRepository.deleteAllByTreinoId(treino.id)
 
         treino.fim = LocalDateTime.now()
 
