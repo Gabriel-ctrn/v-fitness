@@ -99,7 +99,12 @@ export default function HomeUsuario() {
 
   const handleIniciarTreinoModal = () => {
     setModalVisible(false);
-    if (treinoSelecionado) handleIniciarTreino(treinoSelecionado.nome);
+    if (treinoSelecionado) {
+      navigation.navigate("fluxo-treino", {
+        treinoId: treinoSelecionado.id,
+        treinoNome: treinoSelecionado.nome,
+      });
+    }
   };
 
   return (

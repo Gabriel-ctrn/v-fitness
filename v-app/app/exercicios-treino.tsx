@@ -30,6 +30,8 @@ export default function ExerciciosTreino() {
   const [novoCarga, setNovoCarga] = useState("");
   const [novoSeries, setNovoSeries] = useState("");
   const [novoReps, setNovoReps] = useState("");
+  const [cargas, setCargas] = useState<string[]>([]);
+  const [reps, setReps] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
 
@@ -51,14 +53,28 @@ export default function ExerciciosTreino() {
     }
   };
 
+  const handleSeriesChange = (value: string) => {
+    setNovoSeries(value);
+    const n = parseInt(value) || 0;
+    setCargas(Array(n).fill(""));
+    setReps(Array(n).fill(""));
+  };
+
+  const handleCargaChange = (idx: number, value: string) => {
+    setCargas((prev) => prev.map((c, i) => (i === idx ? value : c)));
+  };
+  const handleRepChange = (idx: number, value: string) => {
+    setReps((prev) => prev.map((r, i) => (i === idx ? value : r)));
+  };
+
   const handleAdicionarExercicio = async () => {
     if (
       !novoNome.trim() ||
       !novoGrupo.trim() ||
       !novoTipo.trim() ||
-      !novoCarga.trim() ||
-      !novoSeries.trim() ||
-      !novoReps.trim()
+      cargas.some((c) => !c.trim()) ||
+      reps.some((r) => !r.trim()) ||
+      !novoSeries.trim()
     )
       return;
     setLoading(true);
@@ -70,9 +86,9 @@ export default function ExerciciosTreino() {
           nome: novoNome,
           grupoMuscular: novoGrupo,
           tipo: novoTipo,
-          carga: parseFloat(novoCarga),
+          cargas: cargas.map(Number),
           series: parseInt(novoSeries),
-          repeticoes: novoReps,
+          repeticoes: reps,
           treinoId: Number(treinoId),
         }),
       });
@@ -84,6 +100,8 @@ export default function ExerciciosTreino() {
       setNovoCarga("");
       setNovoSeries("");
       setNovoReps("");
+      setCargas([]);
+      setReps([]);
       buscarExercicios();
     } catch (e) {
       setMensagem("Erro ao adicionar exercício");
@@ -134,24 +152,33 @@ export default function ExerciciosTreino() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Carga (kg)"
-          value={novoCarga}
-          onChangeText={setNovoCarga}
-          keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nº de séries"
+          placeholder="Séries"
           value={novoSeries}
-          onChangeText={setNovoSeries}
+          onChangeText={handleSeriesChange}
           keyboardType="numeric"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Repetições por série (ex: 12,12,10)"
-          value={novoReps}
-          onChangeText={setNovoReps}
-        />
+        {cargas.map((c, idx) => (
+          <View
+            key={idx}
+            style={{ flexDirection: "row", alignItems: "center" }}
+          >
+            <Text style={{ marginRight: 4 }}>Série {idx + 1}:</Text>
+            <TextInput
+              style={[styles.input, { width: 60 }]}
+              placeholder="Carga (kg)"
+              value={c}
+              onChangeText={(v) => handleCargaChange(idx, v)}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={[styles.input, { width: 60, marginLeft: 4 }]}
+              placeholder="Reps"
+              value={reps[idx]}
+              onChangeText={(v) => handleRepChange(idx, v)}
+              keyboardType="numeric"
+            />
+          </View>
+        ))}
         <Button
           title="Adicionar"
           onPress={handleAdicionarExercicio}

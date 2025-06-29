@@ -14,11 +14,11 @@ data class Exercicio(
     var nome: String,
     var grupoMuscular: String,
     var tipo: String,
-    var carga: Double,
+    var cargas: List<Double>,
+    var repeticoes: List<String>,
     var series: Int,
-    var repeticoes: String,
     @ManyToOne
     @JoinColumn(name = "treino_id")
     @JsonIgnore
-    val treino: Treino
+    val treino: Treino?
 )

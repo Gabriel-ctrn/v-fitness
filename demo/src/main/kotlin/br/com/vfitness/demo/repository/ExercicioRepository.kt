@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface ExercicioRepository : JpaRepository<Exercicio, Long> {
     fun findAllByGrupoMuscular(grupoMuscular: String): List<Exercicio>
     fun findAllByTipo(tipo: String): List<Exercicio>
+    fun findAllByTreinoId(treinoId: Long): List<Exercicio>
 }

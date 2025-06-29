@@ -4,8 +4,8 @@ data class NovoExercicioRequest(
     val nome: String,
     val grupoMuscular: String,
     val tipo: String,
-    val carga: Double,
+    val cargas: List<Double>,
     val series: Int,
-    val repeticoes: String,
+    val repeticoes: List<String>,
     val treinoId: Long
 )

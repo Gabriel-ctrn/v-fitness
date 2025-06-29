@@ -28,4 +28,8 @@ class ExercicioController(private val exercicioService: ExercicioService) {
     @DeleteMapping("/{id}")
     fun deletar(@PathVariable id: Long): ResponseEntity<Void> =
         exercicioService.deletar(id)
+
+    @GetMapping("/treino/{treinoId}")
+    fun buscarPorTreinoId(@PathVariable treinoId: Long): List<Exercicio> =
+        exercicioService.buscarPorTreinoId(treinoId)
 }

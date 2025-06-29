@@ -26,7 +26,7 @@ class ExercicioService(
                 nome = request.nome,
                 grupoMuscular = request.grupoMuscular,
                 tipo = request.tipo,
-                carga = request.carga,
+                cargas = request.cargas,
                 series = request.series,
                 repeticoes = request.repeticoes,
                 treino = treino
@@ -41,7 +41,7 @@ class ExercicioService(
                 nome = atualizada.nome,
                 grupoMuscular = atualizada.grupoMuscular,
                 tipo = atualizada.tipo,
-                carga = atualizada.carga,
+                cargas = atualizada.cargas,
                 series = atualizada.series,
                 repeticoes = atualizada.repeticoes
             )
@@ -60,4 +60,7 @@ class ExercicioService(
             ResponseEntity.notFound().build()
         }
     }
+
+    fun buscarPorTreinoId(treinoId: Long): List<Exercicio> =
+        exercicioRepository.findAllByTreinoId(treinoId)
 }
