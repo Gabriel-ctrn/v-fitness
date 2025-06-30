@@ -1,6 +1,13 @@
 package br.com.vfitness.demo.dto
 
+data class ExercicioSugestaoDTO(
+    val nome: String = "",
+    val carga: String = "",
+    val series: String = "",
+    val repeticoes: String = ""
+)
+
 data class SugestaoTreinoDTO(
-    val sugestoes: List<ItemTreinoDTO>,
-    val aumentoCarga: Map<Long, Double> // exercicioId -> novo valor sugerido de carga
+    val maquina: ExercicioSugestaoDTO = ExercicioSugestaoDTO(),
+    val livre: ExercicioSugestaoDTO = ExercicioSugestaoDTO()
 )

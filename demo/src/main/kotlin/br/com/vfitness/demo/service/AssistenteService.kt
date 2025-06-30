@@ -1,34 +1,36 @@
 package br.com.vfitness.demo.service
 
+// Ensure this import path matches the actual location of NovoAssistenteRequest
 import br.com.vfitness.demo.client.IAClient
 import br.com.vfitness.demo.dto.AtualizaAssistenteRequest
-// Ensure this import path matches the actual location of NovoAssistenteRequest
 import br.com.vfitness.demo.dto.NovoAssistenteRequest
 import br.com.vfitness.demo.dto.SugestaoTreinoDTO
 import br.com.vfitness.demo.entity.Academia
 import br.com.vfitness.demo.entity.Assistente
-import br.com.vfitness.demo.entity.Treino
 import br.com.vfitness.demo.entity.ItemTreino
+import br.com.vfitness.demo.entity.Treino
 import br.com.vfitness.demo.repository.AcademiaRepository
 import br.com.vfitness.demo.repository.AssistenteRepository
-import br.com.vfitness.demo.repository.TreinoRepository
-import br.com.vfitness.demo.repository.MaquinaRepository
-import br.com.vfitness.demo.repository.ItemTreinoRepository
 import br.com.vfitness.demo.repository.ExercicioRepository
+import br.com.vfitness.demo.repository.ItemTreinoRepository
+import br.com.vfitness.demo.repository.MaquinaRepository
+import br.com.vfitness.demo.repository.TreinoRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.slf4j.LoggerFactory
 
 @Service
 class AssistenteService(
-    private val assistenteRepository: AssistenteRepository,
-    private val academiaRepository: AcademiaRepository,
-    private val iaClient: IAClient, // injeta o client da IA
-    private val treinoRepository: TreinoRepository,
-    private val maquinaRepository: MaquinaRepository,
-    private val itemTreinoRepository: ItemTreinoRepository,
-    private val exercicioRepository: ExercicioRepository
+        private val assistenteRepository: AssistenteRepository,
+        private val academiaRepository: AcademiaRepository,
+        private val iaClient: IAClient, // injeta o client da IA
+        private val treinoRepository: TreinoRepository,
+        private val maquinaRepository: MaquinaRepository,
+        private val itemTreinoRepository: ItemTreinoRepository,
+        private val exercicioRepository: ExercicioRepository
 ) {
 
+    private val logger = LoggerFactory.getLogger(AssistenteService::class.java)
     fun listar(): List<Assistente> = assistenteRepository.findAll()
 
     fun buscarPorId(id: Long): ResponseEntity<Assistente> {
@@ -37,14 +39,17 @@ class AssistenteService(
     }
 
     fun criarAssistente(request: NovoAssistenteRequest): Academia {
-        val academia = academiaRepository.findById(request.academiaId)
-            .orElseThrow { RuntimeException("Academia não encontrada") }
+        val academia =
+                academiaRepository.findById(request.academiaId).orElseThrow {
+                    RuntimeException("Academia não encontrada")
+                }
 
-        val assistente = Assistente(
-            identificador = request.identificador,
-            modelo = request.modelo,
-            academia = academia
-        )
+        val assistente =
+                Assistente(
+                        identificador = request.identificador,
+                        modelo = request.modelo,
+                        academia = academia
+                )
 
         assistenteRepository.save(assistente)
         return academia
@@ -53,13 +58,16 @@ class AssistenteService(
     fun atualizar(id: Long, atualizada: AtualizaAssistenteRequest): ResponseEntity<Assistente> {
         val existente = assistenteRepository.findById(id).orElse(null)
         return if (existente != null) {
-            val academia = academiaRepository.findById(atualizada.academiaId)
-                .orElseThrow { RuntimeException("Academia não encontrada") }
-            val novo = existente.copy(
-                identificador = atualizada.identificador,
-                modelo = atualizada.modelo,
-                academia = academia
-            )
+            val academia =
+                    academiaRepository.findById(atualizada.academiaId).orElseThrow {
+                        RuntimeException("Academia não encontrada")
+                    }
+            val novo =
+                    existente.copy(
+                            identificador = atualizada.identificador,
+                            modelo = atualizada.modelo,
+                            academia = academia
+                    )
             ResponseEntity.ok(assistenteRepository.save(novo))
         } else {
             ResponseEntity.notFound().build()
@@ -90,7 +98,7 @@ class AssistenteService(
             mapper.readValue(respostaJson, SugestaoTreinoDTO::class.java)
         } catch (e: Exception) {
             // Retorna vazio ou lança exceção conforme sua estratégia
-            SugestaoTreinoDTO(emptyList(), emptyMap())
+            SugestaoTreinoDTO() // Retorna DTO vazio
         }
     }
 
@@ -100,7 +108,8 @@ class AssistenteService(
         // Busca o exercício específico
         val exercicioOcupado = exercicios.find { it.id == exercicioId }
         // Monta o prompt para a IA
-        val prompt = """
+        val prompt =
+                """
 Você é um especialista em treinos de musculação e precisa sugerir dois novos exercícios com base no contexto:
 Exercício indisponível: ${exercicioOcupado?.nome ?: ""} (grupo muscular: ${exercicioOcupado?.grupoMuscular ?: ""})
 
@@ -127,17 +136,30 @@ Responda em JSON compatível com o seguinte modelo:
 }
 """
         return try {
-            val respostaJson = iaClient.obterRespostaAssistente(prompt)
+            val respostaGemini = iaClient.obterRespostaAssistente(prompt)
+            logger.info("Resposta da IA (bruta): $respostaGemini")
             val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-            mapper.readValue(respostaJson, SugestaoTreinoDTO::class.java)
+            val root = mapper.readTree(respostaGemini)
+            val textGemini = root.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText()
+            logger.info("Campo text extraído da IA: $textGemini")
+            val jsonLimpo = textGemini.replace("```json", "").replace("```", "").trim()
+            logger.info("JSON limpo extraído da IA: $jsonLimpo")
+            mapper.readValue(jsonLimpo, SugestaoTreinoDTO::class.java)
         } catch (e: Exception) {
-            // Retorna vazio ou lança exceção conforme sua estratégia
-            SugestaoTreinoDTO(emptyList(), emptyMap())
+            logger.error("Erro ao processar resposta da IA", e)
+            SugestaoTreinoDTO() // Retorna DTO vazio
         }
     }
 
-    fun montarPromptParaIA(treino: Treino, itens: List<ItemTreino>, maquinasOcupadas: List<String>): String {
-        val exercicios = itens.joinToString("; ") { "${it.exercicio} (carga: ${it.carga}, reps: ${it.repeticoes})" }
+    fun montarPromptParaIA(
+            treino: Treino,
+            itens: List<ItemTreino>,
+            maquinasOcupadas: List<String>
+    ): String {
+        val exercicios =
+                itens.joinToString("; ") {
+                    "${it.exercicio} (carga: ${it.carga}, reps: ${it.repeticoes})"
+                }
         val maquinas = maquinasOcupadas.joinToString(", ")
         return "Sugira alternativas para o treino '${treino.nome}' considerando que as máquinas ocupadas são: $maquinas. Exercícios planejados: $exercicios. Sugira substituições livres ou em outras máquinas, se necessário, e aumentos de carga se apropriado. Responda em JSON compatível com SugestaoTreinoDTO."
     }

@@ -66,4 +66,16 @@ class AssistenteController(
         )
         return ResponseEntity.ok(sugestao)
     }
+
+    @GetMapping("/sugestao-exercicio")
+    fun sugestaoExercicioGet(
+        @org.springframework.web.bind.annotation.RequestParam treinoId: Long,
+        @org.springframework.web.bind.annotation.RequestParam exercicioId: Long
+    ): ResponseEntity<SugestaoTreinoDTO> {
+        val sugestao = assistenteService.obterSugestaoTreinoParaTreinoAtual(
+            treinoId,
+            exercicioId
+        )
+        return ResponseEntity.ok(sugestao)
+    }
 }

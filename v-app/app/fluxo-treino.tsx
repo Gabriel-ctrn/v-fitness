@@ -153,28 +153,14 @@ export default function FluxoTreino() {
     setMaquinaMsg("");
     try {
       const resp = await fetch(
-        "http://localhost:8080/assistentes/sugestao-exercicio",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            treinoId: Number(treinoId),
-            exercicioId: exercicio.id,
-          }),
-        }
+        `http://localhost:8080/assistentes/sugestao-exercicio?treinoId=${treinoId}&exercicioId=${exercicio.id}`
       );
+      console.log("Resposta da IA:", resp);
       if (resp.ok) {
-        let sugestao = await resp.text();
-        // Tenta extrair apenas o texto formatado da IA caso venha um JSON Gemini
-        try {
-          const json = JSON.parse(sugestao);
-          if (json?.candidates?.[0]?.content?.parts?.[0]?.text) {
-            sugestao = json.candidates[0].content.parts[0].text;
-          }
-        } catch {}
+        const sugestaoObj = await resp.json();
         setTimeout(() => {
           setMaquinaLoading(false);
-          setMaquinaMsg(sugestao);
+          setMaquinaMsg(sugestaoObj);
         }, 2000);
       } else {
         setTimeout(() => {
@@ -214,8 +200,10 @@ export default function FluxoTreino() {
             <Text style={styles.serieNumCustom}>{idx + 1}ª</Text>
             <TextInput
               style={styles.inputCustom}
-              value={serie.peso}
-              onChangeText={(v) => handleEditSerie(idx, "peso", v)}
+              value={serie.peso ? serie.peso + " kg" : ""}
+              onChangeText={(v) =>
+                handleEditSerie(idx, "peso", v.replace(/\D/g, ""))
+              }
               keyboardType="numeric"
               placeholder="Carga (kg)"
               placeholderTextColor="#aaa"
@@ -233,7 +221,13 @@ export default function FluxoTreino() {
           </View>
         ))}
       </View>
-      <Text style={styles.recomendacao}>{exercicio.recomendacao || ""}</Text>
+      <Text style={styles.recomendacao}>
+        {typeof exercicio.recomendacao === "string"
+          ? exercicio.recomendacao
+          : exercicio.recomendacao != null
+          ? String(exercicio.recomendacao)
+          : ""}
+      </Text>
       <View style={styles.botoesBox}>
         <TouchableOpacity
           style={[styles.botaoFinalizar, finalizado && styles.botaoAtivo]}
@@ -257,7 +251,14 @@ export default function FluxoTreino() {
             if (!maquinaOcupada) handleMaquinaOcupada();
           }}
         >
-          <Text style={[styles.botaoSecundarioText, maquinaOcupada && { color: '#fff' }]}>Máquina ocupada</Text>
+          <Text
+            style={[
+              styles.botaoSecundarioText,
+              maquinaOcupada && { color: "#fff" },
+            ]}
+          >
+            Máquina ocupada
+          </Text>
         </TouchableOpacity>
       </View>
       {maquinaLoading && (
@@ -265,21 +266,86 @@ export default function FluxoTreino() {
           Carregando...
         </Text>
       )}
-      {maquinaMsg && (
-        <Text
+      {maquinaMsg && typeof maquinaMsg === "object" ? (
+        <View
           style={{
-            color: "#007700",
-            fontWeight: "bold",
             marginTop: 10,
+            backgroundColor: Colors.light.tint,
+            borderRadius: 10,
+            padding: 12,
           }}
         >
-          {maquinaMsg}
-        </Text>
+          <Text
+            style={{
+              color: Colors.light.background,
+              fontWeight: "bold",
+              fontSize: 16,
+              marginBottom: 8,
+            }}
+          >
+            Sugestão da IA:
+          </Text>
+          {(maquinaMsg as any).maquina && (
+            <View style={{ marginBottom: 8 }}>
+              <Text
+                style={{ color: Colors.light.background, fontWeight: "bold" }}
+              >
+                Máquina:
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Nome: {(maquinaMsg as any).maquina.nome || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Carga: {(maquinaMsg as any).maquina.carga || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Séries: {(maquinaMsg as any).maquina.series || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Repetições: {(maquinaMsg as any).maquina.repeticoes || "-"}
+              </Text>
+            </View>
+          )}
+          {(maquinaMsg as any).livre && (
+            <View>
+              <Text
+                style={{ color: Colors.light.background, fontWeight: "bold" }}
+              >
+                Livre:
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Nome: {(maquinaMsg as any).livre.nome || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Carga: {(maquinaMsg as any).livre.carga || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Séries: {(maquinaMsg as any).livre.series || "-"}
+              </Text>
+              <Text style={{ color: Colors.light.background }}>
+                Repetições: {(maquinaMsg as any).livre.repeticoes || "-"}
+              </Text>
+            </View>
+          )}
+        </View>
+      ) : (
+        maquinaMsg && (
+          <Text
+            style={{
+              color: "#007700",
+              fontWeight: "bold",
+              marginTop: 10,
+            }}
+          >
+            {typeof maquinaMsg === "string"
+              ? maquinaMsg
+              : maquinaMsg != null
+              ? String(maquinaMsg)
+              : ""}
+          </Text>
+        )
       )}
-      <TouchableOpacity
-        style={styles.voltarBtn}
-        onPress={() => router.back()}
-      >
+      <TouchableOpacity style={styles.voltarBtn} onPress={() => router.back()}>
         <Text style={styles.voltarBtnText}>Voltar</Text>
       </TouchableOpacity>
     </View>
@@ -382,8 +448,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   botaoSecundarioAtivo: {
-    backgroundColor: '#ff4d4d', // vermelho claro mais visível
-    borderColor: '#e00',
+    backgroundColor: "#ff4d4d", // vermelho claro mais visível
+    borderColor: "#e00",
   },
   botaoAtivo: {
     backgroundColor: Colors.light.text,
