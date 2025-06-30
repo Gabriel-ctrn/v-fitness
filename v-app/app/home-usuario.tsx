@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../constants/Colors";
+import { Image } from "expo-image";
 
 type Treino = {
   id: number;
@@ -110,6 +111,7 @@ export default function HomeUsuario() {
 
   return (
     <View style={styles.container}>
+      <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
       <Text style={styles.title}>Bem-vindo ao V-Fitness!</Text>
       <Text style={styles.subtitle}>Seus Treinos:</Text>
       {loading && <Text>Carregando...</Text>}
@@ -243,5 +245,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginRight: 8,
+  },
+  logo: {
+    width: 180,
+    height: 120,
+    marginBottom: 12,
+    resizeMode: "contain",
   },
 });

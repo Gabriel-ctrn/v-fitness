@@ -127,12 +127,7 @@ export default function ExerciciosTreino() {
             <Text style={{ fontWeight: "bold" }}>{item.nome}</Text>
             <Text>Grupo Muscular: {item.grupoMuscular}</Text>
             <Text>Tipo: {item.tipo}</Text>
-
-            <Text>Carga: {item.carga} kg</Text>
-
             <Text>Séries: {item.series}</Text>
-
-            {item.repeticoes && <Text>Repetições: {item.repeticoes}</Text>}
           </View>
         )}
       />

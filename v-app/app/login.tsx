@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "../constants/Colors";
+import { Image } from "expo-image";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
       <Text style={styles.title}>V-Fitness</Text>
       {isCadastro ? (
         <>
@@ -170,4 +172,10 @@ const styles = StyleSheet.create({
   },
   link: { marginTop: 10, color: Colors.light.tint },
   mensagem: { marginTop: 20, color: Colors.light.tint, fontWeight: "bold" },
+  logo: {
+    width: 180,
+    height: 120,
+    marginBottom: 12,
+    resizeMode: "contain",
+  },
 });
