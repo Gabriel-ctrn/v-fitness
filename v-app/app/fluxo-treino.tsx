@@ -115,12 +115,13 @@ export default function FluxoTreino() {
     }
   };
 
-  // Salvar alterações no backend
-  const handleSalvar = async () => {
-    const cargas = series.map((s) => Number(s.peso));
-    const repeticoes = series.map((s) => s.repeticoes);
-    try {
-      await fetch(`http://localhost:8080/exercicios/${exercicio.id}`, {
+  // Salvar alterações no backend automaticamente ao editar série
+  useEffect(() => {
+    if (!loading && exercicios.length > 0) {
+      const exercicio = exercicios[exercicioIdx];
+      const cargas = series.map((s) => Number(s.peso));
+      const repeticoes = series.map((s) => s.repeticoes);
+      fetch(`http://localhost:8080/exercicios/${exercicio.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,14 +129,12 @@ export default function FluxoTreino() {
           cargas,
           repeticoes,
           series: series.length,
-          treino: { id: Number(treinoId) }, // força sempre o treino correto
+          treino: { id: Number(treinoId) },
         }),
       });
-      await buscarExercicios(); // Atualiza os dados após salvar
-    } catch (e) {
-      // Pode exibir mensagem de erro se quiser
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [series]);
 
   const handleFinalizarExercicio = () => {
     if (exercicioIdx < exercicios.length - 1) {
@@ -209,51 +208,56 @@ export default function FluxoTreino() {
         Treino de {treinoNome || exercicio.grupoMuscular}
       </Text>
       <Text style={styles.nomeExercicio}>{exercicio.nome}</Text>
-      <View style={styles.seriesBox}>
+      <View style={styles.seriesBoxCustom}>
         {series.map((serie, idx) => (
-          <View key={idx} style={styles.serieLinha}>
-            <Text style={styles.serieNum}>{idx + 1}</Text>
+          <View key={idx} style={styles.serieLinhaCustom}>
+            <Text style={styles.serieNumCustom}>{idx + 1}ª</Text>
             <TextInput
-              style={styles.input}
+              style={styles.inputCustom}
               value={serie.peso}
               onChangeText={(v) => handleEditSerie(idx, "peso", v)}
               keyboardType="numeric"
-              placeholder="Peso (kg)"
+              placeholder="Carga (kg)"
+              placeholderTextColor="#aaa"
             />
+            <Text style={styles.xText}>x</Text>
             <TextInput
-              style={styles.input}
+              style={styles.inputCustom}
               value={serie.repeticoes}
               onChangeText={(v) => handleEditSerie(idx, "repeticoes", v)}
               keyboardType="numeric"
-              placeholder="Repetições"
+              placeholder="Reps"
+              placeholderTextColor="#aaa"
             />
+            <Text style={styles.repsLabel}>reps</Text>
           </View>
         ))}
       </View>
-      <Button title="Salvar" onPress={handleSalvar} />
       <Text style={styles.recomendacao}>{exercicio.recomendacao || ""}</Text>
       <View style={styles.botoesBox}>
         <TouchableOpacity
-          style={[styles.botao, finalizado && styles.botaoAtivo]}
+          style={[styles.botaoFinalizar, finalizado && styles.botaoAtivo]}
           onPress={() => {
             setFinalizado((v) => !v);
             if (!finalizado) handleFinalizarExercicio();
           }}
         >
-          <Text style={styles.botaoText}>
+          <Text style={styles.botaoFinalizarText}>
             {finalizado ? "Finalizado" : "Finalizar"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.botao, maquinaOcupada && styles.botaoAtivo]}
+          style={[
+            styles.botaoSecundario,
+            maquinaOcupada && styles.botaoSecundarioAtivo,
+            // Remover styles.botaoAtivo para não sobrepor o vermelho
+          ]}
           onPress={() => {
             setMaquinaOcupada((v) => !v);
             if (!maquinaOcupada) handleMaquinaOcupada();
           }}
         >
-          <Text style={styles.botaoText}>
-            {maquinaOcupada ? "Máquina Ocupada" : "Máquina Livre"}
-          </Text>
+          <Text style={[styles.botaoSecundarioText, maquinaOcupada && { color: '#fff' }]}>Máquina ocupada</Text>
         </TouchableOpacity>
       </View>
       {maquinaLoading && (
@@ -267,27 +271,17 @@ export default function FluxoTreino() {
             color: "#007700",
             fontWeight: "bold",
             marginTop: 10,
-            whiteSpace: "pre-line",
           }}
         >
           {maquinaMsg}
         </Text>
       )}
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Button
-          title="Anterior"
-          onPress={() => setExercicioIdx((i) => Math.max(0, i - 1))}
-          disabled={exercicioIdx === 0}
-        />
-        <Button
-          title="Próximo"
-          onPress={() =>
-            setExercicioIdx((i) => Math.min(exercicios.length - 1, i + 1))
-          }
-          disabled={exercicioIdx === exercicios.length - 1}
-        />
-      </View>
-      <Button title="Voltar" onPress={() => router.back()} />
+      <TouchableOpacity
+        style={styles.voltarBtn}
+        onPress={() => router.back()}
+      >
+        <Text style={styles.voltarBtnText}>Voltar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -296,17 +290,59 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: Colors.light.background },
   tituloTreino: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
   nomeExercicio: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
-  seriesBox: { marginBottom: 16 },
-  serieLinha: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  serieNum: { width: 24, fontWeight: "bold", fontSize: 16 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 8,
-    marginHorizontal: 4,
-    width: 70,
+  seriesBoxCustom: {
+    marginBottom: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  serieLinhaCustom: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f7f7fa",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+    width: "90%",
+    alignSelf: "center",
+  },
+  serieNumCustom: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: Colors.light.tint,
+    marginRight: 10,
+    width: 32,
     textAlign: "center",
+  },
+  inputCustom: {
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 6,
+    width: 80,
+    backgroundColor: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+    color: Colors.light.text,
+  },
+  xText: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: Colors.light.tint,
+    marginHorizontal: 4,
+  },
+  repsLabel: {
+    fontSize: 14,
+    color: Colors.light.text,
+    marginLeft: 4,
+    fontWeight: "bold",
   },
   recomendacao: {
     marginBottom: 16,
@@ -314,13 +350,56 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   botoesBox: { flexDirection: "row", gap: 12, marginBottom: 20 },
-  botao: {
+  botaoFinalizar: {
     backgroundColor: Colors.light.tint,
-    borderRadius: 5,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    minWidth: 140,
     marginRight: 8,
   },
-  botaoAtivo: { backgroundColor: Colors.light.text },
-  botaoText: { color: Colors.light.background, fontWeight: "bold" },
+  botaoFinalizarText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  botaoSecundario: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
+    minWidth: 140,
+  },
+  botaoSecundarioText: {
+    color: Colors.light.tint,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  botaoSecundarioAtivo: {
+    backgroundColor: '#ff4d4d', // vermelho claro mais visível
+    borderColor: '#e00',
+  },
+  botaoAtivo: {
+    backgroundColor: Colors.light.text,
+    opacity: 0.7,
+  },
+  voltarBtn: {
+    marginTop: 24,
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  voltarBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
 });

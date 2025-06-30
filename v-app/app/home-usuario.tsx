@@ -154,18 +154,28 @@ export default function HomeUsuario() {
             >
               O que deseja fazer?
             </Text>
-            <Button
-              title="Editar Exercícios"
+            <TouchableOpacity
+              style={styles.modalBtn}
               onPress={handleEditarExercicios}
-            />
+            >
+              <Text style={styles.modalBtnText}>Editar Exercícios</Text>
+            </TouchableOpacity>
             <View style={{ height: 12 }} />
-            <Button title="Iniciar Treino" onPress={handleIniciarTreinoModal} />
+            <TouchableOpacity
+              style={styles.modalBtn}
+              onPress={handleIniciarTreinoModal}
+            >
+              <Text style={styles.modalBtnText}>Iniciar Treino</Text>
+            </TouchableOpacity>
             <View style={{ height: 12 }} />
-            <Button
-              title="Cancelar"
-              color="#888"
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.modalBtnCancel]}
               onPress={() => setModalVisible(false)}
-            />
+            >
+              <Text style={[styles.modalBtnText, styles.modalBtnCancelText]}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -176,11 +186,13 @@ export default function HomeUsuario() {
           value={novoTreino}
           onChangeText={setNovoTreino}
         />
-        <Button
-          title="Adicionar Treino"
+        <TouchableOpacity
+          style={[styles.addTreinoBtn, loading && { opacity: 0.6 }]}
           onPress={handleAdicionarTreino}
           disabled={loading}
-        />
+        >
+          <Text style={styles.addTreinoBtnText}>Adicionar Treino</Text>
+        </TouchableOpacity>
       </View>
       {mensagem ? <Text style={styles.mensagem}>{mensagem}</Text> : null}
     </View>
@@ -251,5 +263,37 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 12,
     resizeMode: "contain",
+  },
+  addTreinoBtn: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addTreinoBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalBtn: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  modalBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalBtnCancel: {
+    backgroundColor: "#eee",
+    marginTop: 0,
+  },
+  modalBtnCancelText: {
+    color: "#888",
   },
 });

@@ -94,7 +94,7 @@ class AssistenteService(
         }
     }
 
-    fun obterSugestaoTreinoParaTreinoAtual(treinoId: Long, exercicioId: Long): String {
+    fun obterSugestaoTreinoParaTreinoAtual(treinoId: Long, exercicioId: Long): SugestaoTreinoDTO {
         // Busca todos os exercícios do treino
         val exercicios = exercicioRepository.findAllByTreinoId(treinoId)
         // Busca o exercício específico
@@ -108,21 +108,32 @@ Recomende de forma resumida:
 1. Um exercício em outra máquina que tenha o mesmo propósito do treino atual.
 2. Um exercício com pesos livres, também com o mesmo propósito.
 
-Responda neste formato:
+Atenção: Sempre informe a carga sugerida em kg (quilogramas), nunca em porcentagem de 1RM ou outros valores relativos.
 
-Sugestão de Exercício em Outra Máquina:
-Nome: ...
-Carga sugerida: ... kg
-Séries: ...
-Repetições: ...
-
-Sugestão de Exercício com Pesos Livres:
-Nome: ...
-Carga sugerida: ... kg
-Séries: ...
-Repetições: ...
+Responda em JSON compatível com o seguinte modelo:
+{
+  "maquina": {
+    "nome": "...",
+    "carga": "...",
+    "series": "...",
+    "repeticoes": "..."
+  },
+  "livre": {
+    "nome": "...",
+    "carga": "...",
+    "series": "...",
+    "repeticoes": "..."
+  }
+}
 """
-        return iaClient.obterRespostaAssistente(prompt)
+        return try {
+            val respostaJson = iaClient.obterRespostaAssistente(prompt)
+            val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+            mapper.readValue(respostaJson, SugestaoTreinoDTO::class.java)
+        } catch (e: Exception) {
+            // Retorna vazio ou lança exceção conforme sua estratégia
+            SugestaoTreinoDTO(emptyList(), emptyMap())
+        }
     }
 
     fun montarPromptParaIA(treino: Treino, itens: List<ItemTreino>, maquinasOcupadas: List<String>): String {

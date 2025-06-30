@@ -59,7 +59,7 @@ class AssistenteController(
     @PostMapping("/sugestao-exercicio")
     fun sugestaoExercicio(
         @RequestBody request: SugestaoExercicioRequest
-    ): ResponseEntity<String> {
+    ): ResponseEntity<SugestaoTreinoDTO> {
         val sugestao = assistenteService.obterSugestaoTreinoParaTreinoAtual(
             request.treinoId,
             request.exercicioId

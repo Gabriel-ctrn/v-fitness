@@ -100,11 +100,15 @@ export default function LoginScreen() {
             onChangeText={setSenha}
             secureTextEntry
           />
-          <Button
-            title={loading ? "Cadastrando..." : "Cadastrar"}
+          <TouchableOpacity
+            style={styles.cadastroBtn}
             onPress={handleCadastro}
             disabled={loading}
-          />
+          >
+            <Text style={styles.cadastroBtnText}>
+              {loading ? "Cadastrando..." : "Cadastrar"}
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setIsCadastro(false)}
             style={styles.link}
@@ -128,11 +132,15 @@ export default function LoginScreen() {
             onChangeText={setSenha}
             secureTextEntry
           />
-          <Button
-            title={loading ? "Entrando..." : "Entrar"}
+          <TouchableOpacity
+            style={styles.loginBtn}
             onPress={handleLogin}
             disabled={loading}
-          />
+          >
+            <Text style={styles.loginBtnText}>
+              {loading ? "Entrando..." : "Entrar"}
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setIsCadastro(true)}
             style={styles.link}
@@ -177,5 +185,33 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 12,
     resizeMode: "contain",
+  },
+  loginBtn: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginTop: 8,
+    width: 250,
+  },
+  loginBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  cadastroBtn: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginTop: 8,
+    width: 250,
+  },
+  cadastroBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
