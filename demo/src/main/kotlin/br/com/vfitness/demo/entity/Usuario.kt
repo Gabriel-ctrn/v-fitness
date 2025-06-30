@@ -25,10 +25,6 @@ data class Usuario(
     @Enumerated(EnumType.STRING)
     val perfil: Perfil = Perfil.ALUNO,
 
-    @ManyToOne
-    @JoinColumn(name = "academia_id")
-    val academia: Academia = Academia(),
-
     @OneToMany(mappedBy = "usuario", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JsonIgnore
     val treinos: List<Treino> = emptyList()

@@ -1,20 +1,26 @@
 package br.com.vfitness.demo.client
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
 @Component
-class IAClient {
-    private val apiKey = "AIzaSyCi7QVPMPn0XjBN1zOKQQvGGvFvMOkVxj4"
+class IAClient(
+    @Value("\${gemini.api.key}") private val apiKey: String,
+    @Value("\${gemini.api.model}") private val model: String
+) {
     private val webClient = WebClient.builder()
-        .baseUrl("https://url-da-sua-ia.com")
-        .defaultHeader("Authorization", "Bearer $apiKey")
+        .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent")
+        .defaultHeader("Content-Type", "application/json")
         .build()
 
     fun obterRespostaAssistente(pergunta: String): String {
+        val requestBody = mapOf(
+            "contents" to listOf(mapOf("parts" to listOf(mapOf("text" to pergunta))))
+        )
         val response = webClient.post()
-            .uri("/endpoint-da-ia")
-            .bodyValue(mapOf("pergunta" to pergunta))
+            .uri("?key=$apiKey")
+            .bodyValue(requestBody)
             .retrieve()
             .bodyToMono(String::class.java)
             .block()

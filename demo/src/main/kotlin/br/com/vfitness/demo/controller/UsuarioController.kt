@@ -25,10 +25,6 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     @GetMapping
     fun listar(): List<Usuario> = usuarioService.listar()
 
-    @GetMapping("/academia/{academiaId}")
-    fun porAcademia(@PathVariable academiaId: Long): List<Usuario> =
-        usuarioService.porAcademia(academiaId)
-
     @GetMapping("/{id}")
     fun buscarPorId(@PathVariable id: Long): ResponseEntity<Usuario> =
         usuarioService.buscarPorId(id)

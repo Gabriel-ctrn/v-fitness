@@ -10,6 +10,7 @@ import {
   Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { Colors } from "../constants/Colors";
 
 type Treino = {
   id: number;
@@ -185,12 +186,23 @@ export default function HomeUsuario() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: Colors.light.background },
+  card: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: Colors.light.text,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+    color: Colors.light.text,
   },
   subtitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
   planoBox: {
@@ -202,15 +214,19 @@ const styles = StyleSheet.create({
   planoNome: { fontSize: 20, fontWeight: "bold", marginBottom: 4 },
   treinosTitle: { marginTop: 10, fontWeight: "bold" },
   treinoBtn: {
-    backgroundColor: "#A1CEDC",
-    borderRadius: 5,
+    backgroundColor: Colors.light.tint,
+    borderRadius: 8,
     padding: 12,
     marginTop: 10,
   },
-  treinoBtnText: { color: "#1D3D47", fontWeight: "bold", textAlign: "center" },
+  treinoBtnText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
   mensagem: {
     marginTop: 20,
-    color: "#007700",
+    color: Colors.light.tint,
     fontWeight: "bold",
     textAlign: "center",
   },

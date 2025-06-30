@@ -10,6 +10,5 @@ data class NovoUsuarioRequest(
     val email: String,
     val senha: String,
     val nivelExperiencia: String = "",
-    val perfil: Perfil = Perfil.ALUNO,
-    val academiaId: Long
+    val perfil: Perfil = Perfil.ALUNO
 )

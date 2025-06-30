@@ -7,7 +7,5 @@ import java.util.Optional
 
 @Repository
 interface UsuarioRepository : JpaRepository<Usuario, Long> {
-    fun findAllByAcademiaId(academiaId: Long): List<Usuario>
-
     fun findByEmail(email: String): Optional<Usuario>
 }

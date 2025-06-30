@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Colors } from "../constants/Colors";
 
 interface Exercicio {
   id: number;
@@ -36,13 +37,17 @@ export default function ExerciciosTreino() {
   const [mensagem, setMensagem] = useState("");
 
   useEffect(() => {
-    buscarExercicios();
-  }, []);
+    if (treinoId) {
+      buscarExercicios();
+    }
+  }, [treinoId]);
 
   const buscarExercicios = async () => {
     setLoading(true);
     try {
-      const resp = await fetch("http://localhost:8080/exercicios");
+      const resp = await fetch(
+        `http://localhost:8080/exercicios/treino/${treinoId}`
+      );
       if (!resp.ok) throw new Error("Erro ao buscar exercícios");
       const data = await resp.json();
       setExercicios(data);
@@ -160,7 +165,11 @@ export default function ExerciciosTreino() {
         {cargas.map((c, idx) => (
           <View
             key={idx}
-            style={{ flexDirection: "row", alignItems: "center" }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 8,
+            }}
           >
             <Text style={{ marginRight: 4 }}>Série {idx + 1}:</Text>
             <TextInput
@@ -192,25 +201,33 @@ export default function ExerciciosTreino() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: Colors.light.background },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
   exercicioItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: Colors.light.text,
+    backgroundColor: Colors.light.background,
   },
-  addBox: { flexDirection: "row", alignItems: "center", marginTop: 16, gap: 8 },
+  addBox: {
+    flexDirection: "column",
+    alignItems: "stretch",
+    marginTop: 16,
+    gap: 8,
+  },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: Colors.light.text,
     borderRadius: 5,
     padding: 10,
     marginRight: 8,
+    color: Colors.light.text,
+    backgroundColor: Colors.light.background,
   },
   mensagem: {
     marginTop: 20,
-    color: "#007700",
+    color: Colors.light.tint,
     fontWeight: "bold",
     textAlign: "center",
   },

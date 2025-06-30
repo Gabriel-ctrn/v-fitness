@@ -1,6 +1,5 @@
 package br.com.vfitness.demo.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
@@ -11,9 +10,5 @@ data class Academia(
 
     val nome: String = "",
 
-    val endereco: String = "",
-
-    @OneToMany(mappedBy = "academia")
-    @JsonIgnore
-    val usuarios: List<Usuario> = emptyList()
+    val endereco: String = ""
 )

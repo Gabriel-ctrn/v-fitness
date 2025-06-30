@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Colors } from "../constants/Colors";
 
 interface Serie {
   peso: string;
@@ -127,7 +128,7 @@ export default function FluxoTreino() {
           cargas,
           repeticoes,
           series: series.length,
-          treino: { id: exercicio.treino?.id || treinoId },
+          treino: { id: Number(treinoId) }, // força sempre o treino correto
         }),
       });
       await buscarExercicios(); // Atualiza os dados após salvar
@@ -148,13 +149,46 @@ export default function FluxoTreino() {
     }
   };
 
-  const handleMaquinaOcupada = () => {
+  const handleMaquinaOcupada = async () => {
     setMaquinaLoading(true);
     setMaquinaMsg("");
-    setTimeout(() => {
-      setMaquinaLoading(false);
-      setMaquinaMsg("vá fazer outra coisa");
-    }, 2000);
+    try {
+      const resp = await fetch(
+        "http://localhost:8080/assistentes/sugestao-exercicio",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            treinoId: Number(treinoId),
+            exercicioId: exercicio.id,
+          }),
+        }
+      );
+      if (resp.ok) {
+        let sugestao = await resp.text();
+        // Tenta extrair apenas o texto formatado da IA caso venha um JSON Gemini
+        try {
+          const json = JSON.parse(sugestao);
+          if (json?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            sugestao = json.candidates[0].content.parts[0].text;
+          }
+        } catch {}
+        setTimeout(() => {
+          setMaquinaLoading(false);
+          setMaquinaMsg(sugestao);
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          setMaquinaLoading(false);
+          setMaquinaMsg("Erro ao obter sugestão da IA");
+        }, 2000);
+      }
+    } catch {
+      setTimeout(() => {
+        setMaquinaLoading(false);
+        setMaquinaMsg("Erro ao obter sugestão da IA");
+      }, 2000);
+    }
   };
 
   if (loading) return <Text>Carregando...</Text>;
@@ -228,7 +262,14 @@ export default function FluxoTreino() {
         </Text>
       )}
       {maquinaMsg && (
-        <Text style={{ color: "#007700", fontWeight: "bold" }}>
+        <Text
+          style={{
+            color: "#007700",
+            fontWeight: "bold",
+            marginTop: 10,
+            whiteSpace: "pre-line",
+          }}
+        >
           {maquinaMsg}
         </Text>
       )}
@@ -252,7 +293,7 @@ export default function FluxoTreino() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: Colors.light.background },
   tituloTreino: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
   nomeExercicio: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
   seriesBox: { marginBottom: 16 },
@@ -267,15 +308,19 @@ const styles = StyleSheet.create({
     width: 70,
     textAlign: "center",
   },
-  recomendacao: { marginBottom: 16, color: "#007700", fontWeight: "bold" },
+  recomendacao: {
+    marginBottom: 16,
+    color: Colors.light.tint,
+    fontWeight: "bold",
+  },
   botoesBox: { flexDirection: "row", gap: 12, marginBottom: 20 },
   botao: {
-    backgroundColor: "#A1CEDC",
+    backgroundColor: Colors.light.tint,
     borderRadius: 5,
     paddingVertical: 12,
     paddingHorizontal: 18,
     marginRight: 8,
   },
-  botaoAtivo: { backgroundColor: "#007700" },
-  botaoText: { color: "#fff", fontWeight: "bold" },
+  botaoAtivo: { backgroundColor: Colors.light.text },
+  botaoText: { color: Colors.light.background, fontWeight: "bold" },
 });

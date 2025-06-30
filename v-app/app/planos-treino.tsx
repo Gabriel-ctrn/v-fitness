@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import { Colors } from "../constants/Colors";
 
 interface PlanoTreino {
   id: number;
@@ -92,12 +93,15 @@ export default function PlanosTreino() {
           </View>
         )}
       />
+      {planos.length === 0 && (
+        <Text style={styles.mensagem}>Nenhum plano de treino encontrado.</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: Colors.light.background },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
   input: {
     borderWidth: 1,
@@ -106,6 +110,12 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-  item: { padding: 15, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  item: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.text,
+    backgroundColor: Colors.light.background,
+  },
   itemTitle: { fontWeight: "bold", fontSize: 18 },
+  mensagem: { marginTop: 20, color: Colors.light.tint, fontWeight: "bold" },
 });
