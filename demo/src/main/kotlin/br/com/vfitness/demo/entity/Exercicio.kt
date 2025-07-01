@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
-// Exercicio agora representa também o item do treino
-// e está vinculado a um treino
-// (remover a entidade ItemTreino depois)
+ 
+ 
+ 
 data class Exercicio(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

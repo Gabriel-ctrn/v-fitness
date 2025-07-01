@@ -5,6 +5,7 @@ import { Colors } from "../../constants/Colors";
 
 export default function HomeScreen() {
   const router = useRouter();
+
   return (
     <View style={styles.container}>
       <View style={styles.headerBox}>
@@ -15,25 +16,19 @@ export default function HomeScreen() {
         <Text style={styles.titulo}>V-Fitness</Text>
         <Text style={styles.subtitulo}>Seu treino inteligente com IA</Text>
       </View>
+
       <View style={styles.iaBox}>
         <Text style={styles.iaText}>
           Receba sugestões personalizadas de exercícios, ajuste seu treino em
           tempo real e evolua com o apoio da inteligência artificial Gemini.
         </Text>
       </View>
+
       <TouchableOpacity
         style={styles.botao}
         onPress={() => router.push("/login")}
       >
-        <Text style={styles.botaoText}>Entrar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.botao, styles.botaoSecundario]}
-        onPress={() => router.push("/login?cadastro=1")}
-      >
-        <Text style={[styles.botaoText, { color: Colors.light.tint }]}>
-          Cadastrar
-        </Text>
+        <Text style={styles.botaoText}>Começar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -58,15 +53,14 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   titulo: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "bold",
     color: Colors.light.text,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   subtitulo: {
-    fontSize: 16,
+    fontSize: 18,
     color: Colors.light.tint,
-    marginBottom: 12,
     fontWeight: "600",
   },
   iaBox: {
@@ -75,14 +69,16 @@ const styles = StyleSheet.create({
     padding: 18,
     marginBottom: 32,
     width: "100%",
-    shadowColor: Colors.light.text,
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   iaText: {
     color: Colors.light.background,
     fontSize: 16,
+    lineHeight: 24,
     textAlign: "center",
     fontWeight: "500",
   },
@@ -95,14 +91,17 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  botaoText: {
+    color: Colors.light.background,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
   botaoSecundario: {
     backgroundColor: Colors.light.background,
     borderWidth: 2,
     borderColor: Colors.light.tint,
   },
-  botaoText: {
-    color: Colors.light.background,
-    fontWeight: "bold",
-    fontSize: 18,
+  botaoTextSecundario: {
+    color: Colors.light.tint,
   },
 });

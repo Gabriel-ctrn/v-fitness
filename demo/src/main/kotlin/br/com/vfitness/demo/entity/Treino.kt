@@ -43,7 +43,7 @@ class Treino(
             return String.format("%d min, %d seg", total.toMinutes(), total.toSecondsPart())
         }
 
-    // Polimorfismo: sobrescrevendo método da superclasse
+ 
     override fun getDuracao(): Duration {
         return if (inicio != null && fim != null) {
             Duration.between(inicio, fim)
@@ -52,3 +52,4 @@ class Treino(
         }
     }
 }
+

@@ -51,7 +51,7 @@ class TreinoController(private val treinoService: TreinoService) {
     @GetMapping("/{id}/recomendacao")
     fun recomendar(@PathVariable id: Long): ResponseEntity<String> {
         val treino = treinoService.buscarPorId(id).body ?: return ResponseEntity.notFound().build()
-        // Lógica simples de recomendação: se todas as repetições forem >= 10, sugerir aumento de carga
+ 
         val sugestoes = treino.itens.mapNotNull {
             val rep = it.repeticoes.filter { c -> c.isDigit() }.toIntOrNull() ?: 0
             if (rep >= 10) "Considere aumentar a carga do exercício ${it.exercicio}." else null
